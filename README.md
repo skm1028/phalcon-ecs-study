@@ -1,5 +1,4 @@
 # phalcon-ecs-study
-# phalcon-ecs-study
 
 PHP の Phalcon 系システムを意識した、ECS / Aurora / GitHub Actions 学習用プロジェクトです。
 
