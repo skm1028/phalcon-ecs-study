@@ -1,0 +1,20 @@
+services:
+  httpd:
+    build:
+      context: .
+      dockerfile: Dockerfile.httpd
+    container_name: phalcon-study-httpd
+    ports:
+      - "8080:80"
+    volumes:
+      - ./app:/var/www/html
+    depends_on:
+      - php
+
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile.php
+    container_name: phalcon-study-php
+    volumes:
+      - ./app:/var/www/html

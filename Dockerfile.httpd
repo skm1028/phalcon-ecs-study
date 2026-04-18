@@ -1,0 +1,28 @@
+FROM httpd:2.4
+
+RUN sed -i '/LoadModule proxy_module modules\/mod_proxy.so/s/^#//g' /usr/local/apache2/conf/httpd.conf \
+    && sed -i '/LoadModule proxy_fcgi_module modules\/mod_proxy_fcgi.so/s/^#//g' /usr/local/apache2/conf/httpd.conf \
+    && sed -i '/LoadModule rewrite_module modules\/mod_rewrite.so/s/^#//g' /usr/local/apache2/conf/httpd.conf
+
+RUN cat <<'EOF' > /usr/local/apache2/conf/extra/php-fpm.conf
+ServerName localhost
+
+DocumentRoot "/var/www/html/public"
+
+<Directory "/var/www/html/public">
+    AllowOverride All
+    Require all granted
+    DirectoryIndex index.php index.html
+</Directory>
+
+ProxyPassMatch ^/(.*\.php)$ fcgi://php:9000/var/www/html/public/$1
+
+<FilesMatch \.php$>
+    SetHandler "proxy:fcgi://php:9000"
+</FilesMatch>
+EOF
+
+RUN echo "Include /usr/local/apache2/conf/extra/php-fpm.conf" >> /usr/local/apache2/conf/httpd.conf \
+    && sed -i 's#DocumentRoot ".*"#DocumentRoot "/var/www/html/public"#' /usr/local/apache2/conf/httpd.conf
+
+CMD ["httpd-foreground"]
