@@ -4,11 +4,8 @@ RUN sed -i '/LoadModule proxy_module modules\/mod_proxy.so/s/^#//g' /usr/local/a
     && sed -i '/LoadModule proxy_fcgi_module modules\/mod_proxy_fcgi.so/s/^#//g' /usr/local/apache2/conf/httpd.conf \
     && sed -i '/LoadModule rewrite_module modules\/mod_rewrite.so/s/^#//g' /usr/local/apache2/conf/httpd.conf
 
-COPY ./public /var/www/html/public
 COPY ./app /var/www/html/app
-COPY ./config /var/www/html/config
-COPY ./composer.json /var/www/html/composer.json
-COPY ./composer.lock /var/www/html/composer.lock
+COPY ./public /var/www/html/public
 
 RUN cat <<'EOF' > /usr/local/apache2/conf/extra/php-fpm.conf
 ServerName localhost

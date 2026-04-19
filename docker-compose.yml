@@ -7,7 +7,7 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - ./app:/var/www/html
+      - ./:/var/www/html
     depends_on:
       - php
 
@@ -17,4 +17,4 @@ services:
       dockerfile: Dockerfile.php
     container_name: phalcon-study-php
     volumes:
-      - ./app:/var/www/html
+      - ./:/var/www/html
