@@ -1,4 +1,4 @@
-name: CI
+name: Build
 
 on:
   push:
@@ -6,10 +6,6 @@ on:
       - main
       - develop
   workflow_dispatch:
-
-permissions:
-  id-token: write
-  contents: read
 
 jobs:
   docker-build:
@@ -19,44 +15,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # TODO: 後ほど削除
-      - name: Debug files
+      - name: httpdイメージをビルド
         run: |
-          pwd
-          ls -la
-          find . -maxdepth 2 -type d | sort
-          find . -maxdepth 2 -type f | sort
+          docker build -f Dockerfile.httpd -t phalcon-study-httpd:test .
 
-      - name: AWS認証設定
-        uses: aws-actions/configure-aws-credentials@v5
-        with:
-          role-to-assume: arn:aws:iam::216973069220:role/github-actions-ecr-role
-          aws-region: ap-northeast-1
-
-      - name: ECRログイン
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: httpdイメージをビルドしてPush
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: phalcon-study-httpd
-          IMAGE_TAG: ${{ github.sha }}
+      - name: phpイメージをビルド
         run: |
-          docker build -f Dockerfile.httpd \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-
-      - name: phpイメージをビルドしてPush
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: phalcon-study-php
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          docker build -f Dockerfile.php \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker build -f Dockerfile.php -t phalcon-study-php:test .
